@@ -87,16 +87,22 @@ Staff roles (`super_admin`, `admin`, `manager`, `staff`) can open `/admin` after
 
 ## Deploy — Render (backend)
 
-Render must bind to **all interfaces** and use Render’s `$PORT`:
-
-1. Root Directory: `backend`
-2. Build Command: `pip install -r requirements.txt`
-3. Start Command:
+Render fails if the API binds only to localhost. This project starts with:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port $PORT
+python main.py
 ```
 
-Do **not** use `--host 127.0.0.1` (Render cannot detect the port).
+That always uses `0.0.0.0` and Render’s `$PORT`.
+
+### Dashboard settings
+
+| Setting | Value |
+|--------|--------|
+| **Root Directory** | `backend` |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `python main.py` |
+
+Overwrite any old start command such as `uvicorn …` without `--host 0.0.0.0`.
 
 Set env vars from `backend/.env.example` (`DATABASE_URL`, `JWT_SECRET_KEY`, `CORS_ORIGINS` with your frontend URL, etc.).

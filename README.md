@@ -84,3 +84,19 @@ Staff roles (`super_admin`, `admin`, `manager`, `staff`) can open `/admin` after
 
 - Live dashboard cards + charts from `GET /api/v1/reports/dashboard` (zeros when empty — no fake stats)
 - Module list pages for sidebar sections, with search, pagination, loading/empty/error states, confirm dialogs, and toasts
+
+## Deploy — Render (backend)
+
+Render must bind to **all interfaces** and use Render’s `$PORT`:
+
+1. Root Directory: `backend`
+2. Build Command: `pip install -r requirements.txt`
+3. Start Command:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+Do **not** use `--host 127.0.0.1` (Render cannot detect the port).
+
+Set env vars from `backend/.env.example` (`DATABASE_URL`, `JWT_SECRET_KEY`, `CORS_ORIGINS` with your frontend URL, etc.).

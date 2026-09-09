@@ -1,0 +1,10 @@
+{
+  "name": "luxurisse-travels",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "cd backend && .venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000",
+    "lint:frontend": "npm run lint --prefix frontend",
+    "test:backend": "cd backend && .venv/Scripts/python.exe -m pytest -q"
+  }
+}

@@ -57,11 +57,18 @@ class Settings(BaseSettings):
     @field_validator("database_url")
     @classmethod
     def normalize_database_url(cls, value: str) -> str:
-        """Neon/Render often give postgres:// — this app uses psycopg3."""
+        """Neon/Render often give postgres:// — this app uses psycopg3.
+
+        Only rewrite bare ``postgres://`` / ``postgresql://`` URLs.
+        Schemes that already include a driver (``postgresql+psycopg://``,
+        ``postgresql+asyncpg://``, …) are left unchanged.
+        """
         url = value.strip()
-        if url.startswith("postgres://"):
-            url = "postgresql://" + url[len("postgres://") :]
-        if url.startswith("postgresql://") and not url.startswith("postgresql+"):
+        lower = url.lower()
+        if lower.startswith("postgres://"):
+            url = "postgresql+psycopg://" + url[len("postgres://") :]
+        elif lower.startswith("postgresql://"):
+            # Exact bare scheme only — ``postgresql+…://`` does not match here.
             url = "postgresql+psycopg://" + url[len("postgresql://") :]
         # channel_binding=require can break some PaaS/psycopg combinations
         url = url.replace("channel_binding=require&", "").replace("&channel_binding=require", "")

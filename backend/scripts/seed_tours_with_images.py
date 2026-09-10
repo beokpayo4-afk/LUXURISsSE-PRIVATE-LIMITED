@@ -393,9 +393,30 @@ def main() -> None:
     db = get_session_factory()()
     created = imaged_existing = skipped = 0
     try:
-        category = db.scalar(select(TourCategory).where(TourCategory.deleted_at.is_(None)).limit(1))
-        if not category:
-            raise SystemExit("No tour category found.")
+        # Prefer a domestic/holiday category — never dump India packages into Local Tours.
+        category = db.scalar(
+            select(TourCategory).where(
+                TourCategory.slug == "domestic-tours",
+                TourCategory.deleted_at.is_(None),
+            )
+        )
+        if category is None:
+            category = db.scalar(
+                select(TourCategory).where(
+                    TourCategory.name == "Domestic Tours",
+                    TourCategory.deleted_at.is_(None),
+                )
+            )
+        if category is None:
+            category = TourCategory(
+                name="Domestic Tours",
+                slug="domestic-tours",
+                description="Holiday and city packages across India",
+                is_active=True,
+            )
+            db.add(category)
+            db.flush()
+            print("CREATE category Domestic Tours")
 
         dest_by_name = {
             d.name: d

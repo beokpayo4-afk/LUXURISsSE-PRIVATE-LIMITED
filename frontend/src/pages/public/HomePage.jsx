@@ -38,11 +38,8 @@ export default function HomePage() {
   }, [destinations])
 
   const localPackages = useMemo(() => {
-    const local = tours.filter(
-      (t) =>
-        t.category_name === 'Local Tours' ||
-        String(t.code || '').startsWith('LX-LOC-')
-    )
+    // Local section = Chhattisgarh / LX-LOC-* packages only (not every tour under "Local Tours").
+    const local = tours.filter((t) => String(t.code || '').startsWith('LX-LOC-'))
     const ranked = [...local].sort((a, b) => {
       const score = (t) => (t.is_featured ? 2 : 0) + (t.starting_price != null ? 1 : 0)
       return score(b) - score(a) || String(a.title).localeCompare(String(b.title))
@@ -51,12 +48,9 @@ export default function HomePage() {
   }, [tours])
 
   const featuredTours = useMemo(() => {
+    // Featured = published catalogue packages (exclude LX-LOC-* local routes).
     const ranked = [...tours]
-      .filter(
-        (t) =>
-          t.category_name !== 'Local Tours' &&
-          !String(t.code || '').startsWith('LX-LOC-')
-      )
+      .filter((t) => !String(t.code || '').startsWith('LX-LOC-'))
       .sort((a, b) => {
         const score = (t) => (t.is_featured ? 2 : 0) + (t.starting_price != null ? 1 : 0)
         return score(b) - score(a) || String(a.title).localeCompare(String(b.title))

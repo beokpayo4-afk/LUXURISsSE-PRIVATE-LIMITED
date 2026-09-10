@@ -23,11 +23,13 @@ def create_app() -> FastAPI:
         "allow_methods": ["*"],
         "allow_headers": ["*"],
     }
-    # Vite may bind 5173, 5174, … — allow any localhost origin while developing.
-    if settings.debug or settings.app_env.lower() in {"development", "dev", "local"}:
-        cors_kwargs["allow_origin_regex"] = r"http://(localhost|127\.0\.0\.1)(:\d+)?"
-    else:
-        cors_kwargs["allow_origins"] = settings.cors_origin_list
+    # Always honour explicit CORS_ORIGINS (production frontend URLs, etc.).
+    origins = settings.cors_origin_list
+    if origins:
+        cors_kwargs["allow_origins"] = origins
+    # Always allow local Vite (any port) so localhost frontends can call a
+    # deployed API during development without CORS failures.
+    cors_kwargs["allow_origin_regex"] = r"https?://(localhost|127\.0\.0\.1)(:\d+)?"
     app.add_middleware(CORSMiddleware, **cors_kwargs)
     app.include_router(api_router, prefix=settings.api_v1_prefix)
 

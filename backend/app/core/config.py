@@ -54,6 +54,20 @@ class Settings(BaseSettings):
     admin_email: str | None = None
     admin_password: str | None = None
 
+    @field_validator("database_url")
+    @classmethod
+    def normalize_database_url(cls, value: str) -> str:
+        """Neon/Render often give postgres:// — this app uses psycopg3."""
+        url = value.strip()
+        if url.startswith("postgres://"):
+            url = "postgresql://" + url[len("postgres://") :]
+        if url.startswith("postgresql://") and not url.startswith("postgresql+"):
+            url = "postgresql+psycopg://" + url[len("postgresql://") :]
+        # channel_binding=require can break some PaaS/psycopg combinations
+        url = url.replace("channel_binding=require&", "").replace("&channel_binding=require", "")
+        url = url.replace("?channel_binding=require", "")
+        return url
+
     @field_validator("jwt_secret_key")
     @classmethod
     def reject_placeholder_secret(cls, value: str) -> str:

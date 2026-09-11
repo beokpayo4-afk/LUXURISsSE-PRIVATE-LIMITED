@@ -41,7 +41,7 @@ export function cartMoneyBreakdown(items = []) {
   }
 
   if (!hasPriced) {
-    return { subtotal: 0, gst: 0, total: 0, ticketSubtotal: 0, hasGst: false }
+    return { subtotal: 0, gst: 0, total: 0, ticketSubtotal: 0, hasTicketGst: false }
   }
 
   const gst = ticketGstAmount(ticketSubtotal) || 0
@@ -50,6 +50,7 @@ export function cartMoneyBreakdown(items = []) {
     ticketSubtotal: roundMoney(ticketSubtotal),
     gst: roundMoney(gst),
     total: roundMoney(subtotal + gst),
-    hasGst: ticketSubtotal > 0,
+    /** True when the cart includes priced ticket lines that attract 5% GST. */
+    hasTicketGst: ticketSubtotal > 0,
   }
 }

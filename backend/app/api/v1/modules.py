@@ -137,16 +137,21 @@ def create_booking(
     total = payload.total_amount
     subtotal = payload.subtotal_amount
     tax = payload.tax_amount
-    if total is None and tour_id:
+
+    # Tour catalogue price is always the base fare (pre-tax). Never copy total → subtotal.
+    if subtotal is None and total is None and tour_id:
         tour = db.get(Tour, tour_id)
         if tour is None or tour.deleted_at is not None:
             raise HTTPException(status_code=400, detail="Invalid tour_id")
         if tour.starting_price is not None:
-            total = tour.starting_price * payload.travelers
-    if subtotal is None and total is not None and tax is None:
-        subtotal = total
+            subtotal = tour.starting_price * payload.travelers
+
     if total is None and subtotal is not None:
-        total = subtotal + (tax or 0)
+        total = subtotal + (tax if tax is not None else 0)
+    elif subtotal is None and total is not None and tax is not None:
+        # Infer base fare when client sent total + tax only.
+        subtotal = total - tax
+
     data = {
         "user_id": user.id,
         "tour_id": tour_id,

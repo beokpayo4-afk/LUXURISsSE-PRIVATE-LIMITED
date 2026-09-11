@@ -74,7 +74,7 @@ export function CartProvider({ children }) {
       total: money.total,
       subtotal: money.subtotal,
       gst: money.gst,
-      hasTicketGst: money.hasGst,
+      hasTicketGst: money.hasTicketGst,
       addItem,
       updateQuantity,
       removeItem,

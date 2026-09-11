@@ -1,8 +1,8 @@
-/** Group ticket pricing — size 30–1000 scales linearly with indicative fare. */
+/** Group ticket pricing — size 100–1000 scales linearly with indicative fare. */
 
-export const TICKET_MIN = 30
+export const TICKET_MIN = 100
 export const TICKET_MAX = 1000
-export const TICKET_PRESETS = [30, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+export const TICKET_PRESETS = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 
 export const BASE_CITY = 'Raipur'
 

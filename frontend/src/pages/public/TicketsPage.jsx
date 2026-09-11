@@ -97,7 +97,7 @@ export default function TicketsPage() {
             Local tickets
           </h1>
           <p className="mt-3 max-w-3xl text-lg text-stone-600 sm:text-xl">
-            Group sizes from 30 to 1000, customize your own route, or book a published local ticket.
+            Group sizes from 100 to 1000, customize your own route, or book a published local ticket.
           </p>
 
           {states.length > 0 && (

@@ -66,8 +66,8 @@ export default function GroupTicketSizer() {
             Ticket sizes from {TICKET_MIN} to {TICKET_MAX}
           </h2>
           <p className="mt-3 text-stone-600">
-            Choose a destination from {BASE_CITY}, then pick a group size — presets start at {TICKET_MIN}, then{' '}
-            100 up to {TICKET_MAX}. Indicative fare updates live; we confirm the final price on booking.
+            Choose a destination from {BASE_CITY}, then pick a group size from {TICKET_MIN} to{' '}
+            {TICKET_MAX}. Indicative fare updates live; we confirm the final price on booking.
           </p>
           <button
             type="button"

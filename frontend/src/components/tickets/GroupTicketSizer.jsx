@@ -110,6 +110,7 @@ export default function GroupTicketSizer() {
             <div className="rounded-2xl border border-stone-100 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">Indicative fare</p>
               <p className="mt-2 font-serif text-3xl text-emerald-950">{formatInr(price)}</p>
+              <p className="mt-1 text-[11px] text-stone-500">+5% GST at checkout</p>
             </div>
           </div>
 

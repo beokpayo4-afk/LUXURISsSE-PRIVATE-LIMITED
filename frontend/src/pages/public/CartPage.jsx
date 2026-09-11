@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
+import { isTicketCartItem, ticketGstAmount, ticketLineSubtotal, ticketTotalWithGst } from '../../utils/ticketGst'
 import { formatTourPrice } from '../../utils/tours'
 
 export default function CartPage() {
-  const { items, count, total, updateQuantity, removeItem, clearCart, itemKey } = useCart()
+  const { items, count, total, subtotal, gst, hasTicketGst, updateQuantity, removeItem, clearCart, itemKey } =
+    useCart()
 
   if (count === 0) {
     return (
@@ -47,7 +49,9 @@ export default function CartPage() {
       <ul className="mt-10 space-y-4">
         {items.map((row) => {
           const key = itemKey(row)
-          const lineTotal = row.unitPrice != null ? row.unitPrice * row.quantity : null
+          const lineSub = ticketLineSubtotal(row)
+          const isTicket = isTicketCartItem(row)
+          const lineTotal = isTicket ? ticketTotalWithGst(lineSub) : lineSub
           return (
             <li
               key={key}
@@ -60,6 +64,7 @@ export default function CartPage() {
                   <p className="mt-2 text-sm text-stone-600">
                     {formatTourPrice(row.unitPrice)}
                     {row.type === 'tour' ? ' per person' : ''}
+                    {isTicket ? ' · +5% GST' : ''}
                   </p>
                 ) : (
                   <p className="mt-2 text-sm text-stone-500">Price on enquiry</p>
@@ -89,7 +94,14 @@ export default function CartPage() {
                   </div>
                 )}
                 {lineTotal != null && (
-                  <p className="font-serif text-xl font-bold text-emerald-950">{formatTourPrice(lineTotal)}</p>
+                  <div className="text-right">
+                    <p className="font-serif text-xl font-bold text-emerald-950">{formatTourPrice(lineTotal)}</p>
+                    {isTicket && lineSub != null && (
+                      <p className="text-xs text-stone-500">
+                        incl. GST {formatTourPrice(ticketGstAmount(lineSub))}
+                      </p>
+                    )}
+                  </div>
                 )}
                 <button
                   type="button"
@@ -106,13 +118,27 @@ export default function CartPage() {
 
       <div className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 sm:p-8">
         {total > 0 && (
-          <div className="flex items-center justify-between text-lg">
-            <span className="text-stone-600">Indicative total</span>
-            <span className="font-serif text-3xl font-bold text-emerald-950">{formatTourPrice(total)}</span>
+          <div className="space-y-2">
+            {hasTicketGst && (
+              <>
+                <div className="flex items-center justify-between text-sm text-stone-600">
+                  <span>Subtotal</span>
+                  <span>{formatTourPrice(subtotal)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm text-stone-600">
+                  <span>GST (5% on tickets)</span>
+                  <span>{formatTourPrice(gst)}</span>
+                </div>
+              </>
+            )}
+            <div className="flex items-center justify-between text-lg">
+              <span className="text-stone-600">Payable total</span>
+              <span className="font-serif text-3xl font-bold text-emerald-950">{formatTourPrice(total)}</span>
+            </div>
           </div>
         )}
         <p className="mt-3 text-sm text-stone-500">
-          Checkout asks for your details, then UPI or Card payment. Booking stays pending until we confirm.
+          Ticket bookings include 5% GST. Checkout asks for your details, then UPI or Card payment.
         </p>
         <Link
           to="/booking"

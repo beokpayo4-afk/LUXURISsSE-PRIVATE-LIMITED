@@ -5,6 +5,12 @@ import DownloadBookingPdfButton from '../../components/bookings/DownloadBookingP
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { downloadBookingsPdf } from '../../utils/bookingPdf'
+import {
+  isTicketCartItem,
+  ticketGstAmount,
+  ticketLineSubtotal,
+  ticketTotalWithGst,
+} from '../../utils/ticketGst'
 import { formatTourPrice } from '../../utils/tours'
 
 function todayIso() {
@@ -72,7 +78,8 @@ export default function BookingCheckoutPage() {
   const travelersParam = Number(searchParams.get('travelers') || 1)
 
   const { user } = useAuth()
-  const { items, clearCart, total: cartTotal } = useCart()
+  const { items, clearCart, total: cartTotal, subtotal: cartSubtotal, gst: cartGst, hasTicketGst } =
+    useCart()
   const navigate = useNavigate()
 
   const [tour, setTour] = useState(null)
@@ -249,16 +256,20 @@ export default function BookingCheckoutPage() {
           displayMeta: row.meta || null,
         })
       } else if (row.type === 'ticket' || row.type === 'group_ticket') {
+        const subtotal = ticketLineSubtotal(row)
+        const tax = ticketGstAmount(subtotal)
+        const total = ticketTotalWithGst(subtotal)
         const booking = await createBooking({
           tour_id: null,
           travel_date: travelDate || null,
           travelers: 1,
           notes: buildGuestNotes(
             notes ||
-              `Tickets: ${row.title}${row.ticketId ? ` (#${row.ticketId})` : ''} — ${row.meta || ''}`
+              `Tickets: ${row.title}${row.ticketId ? ` (#${row.ticketId})` : ''} — ${row.meta || ''} · GST 5%`
           ),
-          total_amount:
-            row.unitPrice != null ? Number(row.unitPrice) * (row.quantity || 1) : null,
+          subtotal_amount: subtotal,
+          tax_amount: tax,
+          total_amount: total,
         })
         results.push({
           ...booking,
@@ -366,6 +377,9 @@ export default function BookingCheckoutPage() {
                     {b.total_amount != null && (
                       <p className="mt-1 text-sm text-stone-600">
                         Amount: {formatTourPrice(b.total_amount)}
+                        {b.tax_amount != null
+                          ? ` (incl. GST ${formatTourPrice(b.tax_amount)})`
+                          : ''}
                       </p>
                     )}
                   </div>
@@ -797,21 +811,39 @@ export default function BookingCheckoutPage() {
           )}
           {mode === 'cart' && (
             <ul className="mt-4 space-y-3">
-              {items.map((row, idx) => (
-                <li key={`${row.title}-${idx}`} className="border-b border-stone-100 pb-3">
-                  <p className="font-medium text-slate-900">{row.title}</p>
-                  <p className="text-sm text-stone-500">
-                    {row.type === 'tour' ? `${row.quantity} traveller(s)` : row.meta || 'Ticket'}
-                    {row.unitPrice != null
-                      ? ` · ${formatTourPrice(row.unitPrice * (row.quantity || 1))}`
-                      : ''}
-                  </p>
-                </li>
-              ))}
+              {items.map((row, idx) => {
+                const lineSub = ticketLineSubtotal(row)
+                const isTicket = isTicketCartItem(row)
+                const lineTotal = isTicket ? ticketTotalWithGst(lineSub) : lineSub
+                return (
+                  <li key={`${row.title}-${idx}`} className="border-b border-stone-100 pb-3">
+                    <p className="font-medium text-slate-900">{row.title}</p>
+                    <p className="text-sm text-stone-500">
+                      {row.type === 'tour' ? `${row.quantity} traveller(s)` : row.meta || 'Ticket'}
+                      {lineTotal != null ? ` · ${formatTourPrice(lineTotal)}` : ''}
+                      {isTicket ? ' incl. 5% GST' : ''}
+                    </p>
+                  </li>
+                )
+              })}
               {cartTotal > 0 && (
-                <p className="pt-2 font-serif text-3xl font-bold text-emerald-950">
-                  {formatTourPrice(cartTotal)}
-                </p>
+                <div className="space-y-1 pt-2">
+                  {hasTicketGst && (
+                    <>
+                      <p className="flex justify-between text-sm text-stone-600">
+                        <span>Subtotal</span>
+                        <span>{formatTourPrice(cartSubtotal)}</span>
+                      </p>
+                      <p className="flex justify-between text-sm text-stone-600">
+                        <span>GST (5%)</span>
+                        <span>{formatTourPrice(cartGst)}</span>
+                      </p>
+                    </>
+                  )}
+                  <p className="font-serif text-3xl font-bold text-emerald-950">
+                    {formatTourPrice(cartTotal)}
+                  </p>
+                </div>
               )}
             </ul>
           )}

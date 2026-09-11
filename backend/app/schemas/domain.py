@@ -21,6 +21,8 @@ class BookingCreate(BaseModel):
     travel_date: Optional[date] = None
     travelers: int = Field(default=1, ge=1)
     notes: Optional[str] = None
+    subtotal_amount: Optional[Decimal] = None
+    tax_amount: Optional[Decimal] = None
     total_amount: Optional[Decimal] = None
 
 
@@ -33,6 +35,8 @@ class BookingRead(BaseModel):
     booking_code: str
     travel_date: Optional[date]
     travelers: int
+    subtotal_amount: Optional[Decimal] = None
+    tax_amount: Optional[Decimal] = None
     total_amount: Optional[Decimal]
     status: BookingStatus
     notes: Optional[str]

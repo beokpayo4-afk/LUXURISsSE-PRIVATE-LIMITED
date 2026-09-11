@@ -244,7 +244,7 @@ export default function TicketCustomizer({ suggestedLocations = [], onStateChang
           <div className="sm:col-span-2 rounded-2xl border border-stone-100 bg-[#faf8f5] px-4 py-3">
             <p className="text-xs uppercase tracking-wider text-stone-500">Indicative fare</p>
             <p className="font-serif text-3xl font-bold text-emerald-950">{formatTourPrice(price)}</p>
-            <p className="mt-1 text-xs text-stone-500">Final fare confirmed after booking review.</p>
+            <p className="mt-1 text-xs text-stone-500">+5% GST applied at checkout. Final fare confirmed after booking review.</p>
           </div>
 
           {error && <p className="sm:col-span-2 text-sm text-red-600">{error}</p>}

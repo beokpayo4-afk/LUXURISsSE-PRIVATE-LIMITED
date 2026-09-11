@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { cartMoneyBreakdown } from '../utils/ticketGst'
 
 const STORAGE_KEY = 'luxurisse_cart'
 
@@ -63,27 +64,24 @@ export function CartProvider({ children }) {
 
   const count = useMemo(() => items.reduce((sum, row) => sum + row.quantity, 0), [items])
 
-  const total = useMemo(
-    () =>
-      items.reduce((sum, row) => {
-        if (row.unitPrice == null) return sum
-        return sum + row.unitPrice * row.quantity
-      }, 0),
-    [items]
-  )
+  const money = useMemo(() => cartMoneyBreakdown(items), [items])
 
   const value = useMemo(
     () => ({
       items,
       count,
-      total,
+      /** Payable total including 5% GST on tickets. */
+      total: money.total,
+      subtotal: money.subtotal,
+      gst: money.gst,
+      hasTicketGst: money.hasGst,
       addItem,
       updateQuantity,
       removeItem,
       clearCart,
       itemKey,
     }),
-    [items, count, total, addItem, updateQuantity, removeItem, clearCart]
+    [items, count, money, addItem, updateQuantity, removeItem, clearCart]
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

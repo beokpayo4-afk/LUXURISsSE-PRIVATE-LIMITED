@@ -221,6 +221,7 @@ export default function TicketsPage() {
               <p className="mt-4 font-serif text-3xl font-bold text-emerald-950">
                 {formatTourPrice(ticket.price)}
               </p>
+              <p className="mt-1 text-xs text-stone-500">+5% GST at checkout</p>
 
               <div className="mt-6 flex flex-wrap gap-2">
                 <button

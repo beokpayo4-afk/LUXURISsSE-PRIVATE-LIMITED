@@ -124,7 +124,17 @@ export function downloadBookingPdf(booking, customer = {}) {
   addLabelValue('Travellers', booking.travelers ?? 1)
 
   if (booking.total_amount != null) {
-    addLabelValue('Amount', formatTourPrice(booking.total_amount))
+    if (booking.subtotal_amount != null || booking.tax_amount != null) {
+      if (booking.subtotal_amount != null) {
+        addLabelValue('Fare (subtotal)', formatTourPrice(booking.subtotal_amount))
+      }
+      if (booking.tax_amount != null) {
+        addLabelValue('GST (5%)', formatTourPrice(booking.tax_amount))
+      }
+      addLabelValue('Total payable', formatTourPrice(booking.total_amount))
+    } else {
+      addLabelValue('Amount', formatTourPrice(booking.total_amount))
+    }
   }
 
   if (booking.notes && !booking.displayTitle) {

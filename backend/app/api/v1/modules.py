@@ -135,12 +135,18 @@ def create_booking(
 ) -> Booking:
     tour_id = payload.tour_id or payload.tour_package_id
     total = payload.total_amount
+    subtotal = payload.subtotal_amount
+    tax = payload.tax_amount
     if total is None and tour_id:
         tour = db.get(Tour, tour_id)
         if tour is None or tour.deleted_at is not None:
             raise HTTPException(status_code=400, detail="Invalid tour_id")
         if tour.starting_price is not None:
             total = tour.starting_price * payload.travelers
+    if subtotal is None and total is not None and tax is None:
+        subtotal = total
+    if total is None and subtotal is not None:
+        total = subtotal + (tax or 0)
     data = {
         "user_id": user.id,
         "tour_id": tour_id,
@@ -148,7 +154,8 @@ def create_booking(
         "travelers": payload.travelers,
         "notes": payload.notes,
         "booking_code": _code("BK"),
-        "subtotal_amount": total,
+        "subtotal_amount": subtotal,
+        "tax_amount": tax,
         "total_amount": total,
     }
     return crud.create_row(db, Booking, data)

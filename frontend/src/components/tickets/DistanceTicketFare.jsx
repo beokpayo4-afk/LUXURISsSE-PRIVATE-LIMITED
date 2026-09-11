@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { COMPANY } from '../../constants/company'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
@@ -20,6 +20,7 @@ export default function DistanceTicketFare() {
   const { addItem } = useCart()
   const addToCart = useAddToCart()
   const goBook = useRequireLoginNavigate()
+  const navigate = useNavigate()
 
   const destination = useMemo(
     () => DISTANCE_DESTINATIONS.find((d) => d.id === destinationId) || DISTANCE_DESTINATIONS[0],
@@ -40,7 +41,13 @@ export default function DistanceTicketFare() {
   }
 
   function handleAdd() {
-    addToCart(buildItem())
+    const item = buildItem()
+    if (user) {
+      addItem(item)
+      navigate('/cart')
+      return
+    }
+    addToCart(item)
   }
 
   function handleBook() {

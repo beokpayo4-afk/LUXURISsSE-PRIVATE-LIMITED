@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import GroupTicketSizer from '../../components/tickets/GroupTicketSizer'
 import TicketCustomizer from '../../components/tickets/TicketCustomizer'
 import { fetchTickets } from '../../api'
 import { useCart } from '../../context/CartContext'
@@ -96,7 +97,7 @@ export default function TicketsPage() {
             Local tickets
           </h1>
           <p className="mt-3 max-w-3xl text-lg text-stone-600 sm:text-xl">
-            Customize your own route — choose any state and type your locations — or book a published local ticket.
+            Group sizes from 30 to 1000, customize your own route, or book a published local ticket.
           </p>
 
           {states.length > 0 && (
@@ -166,6 +167,8 @@ export default function TicketsPage() {
           )}
         </div>
       </section>
+
+      <GroupTicketSizer />
 
       <TicketCustomizer
         suggestedLocations={suggestedLocations}
